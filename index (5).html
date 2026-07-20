@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnergiBersama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C1912;
+    --ink-soft:#6b6459;
+    --bone:#EFEAE0;
+    --bone-2:#E6DFD1;
+    --card:#FBF9F4;
+    --dusk:#2B3A67;
+    --dusk-deep:#1E2A4D;
+    --solar:#E8A33D;
+    --solar-deep:#C97F1E;
+    --sawah:#4C7A57;
+    --sawah-bg:#E4EEE3;
+    --clay:#B5533C;
+    --clay-bg:#F3E3DC;
+    --line:#D9D2C2;
+    --white:#FFFFFF;
+
+    --font-display:'Fraunces', serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:#DED5C2;
+    min-height:100vh;
+  }
+
+  /* ---------- Responsive app shell (no device chrome) ---------- */
+  .app-shell{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--bone);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    box-shadow:0 0 0 1px rgba(20,15,5,0.05);
+  }
+  @media (min-width:640px){
+    .app-shell{
+      min-height:calc(100vh - 64px);
+      margin:32px auto;
+      border-radius:28px;
+      overflow:hidden;
+      box-shadow:0 24px 60px -24px rgba(20,15,5,0.28), 0 0 0 1px rgba(20,15,5,0.06);
+    }
+  }
+
+  .screen{
+    flex:1 1 auto;
+    display:none;
+    flex-direction:column;
+  }
+  .screen.active{display:flex;}
+
+  /* ---------- Top nav ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:40;
+    display:flex; flex-wrap:wrap; align-items:center;
+    row-gap:8px;
+    padding:10px 12px 8px 12px;
+    background:var(--card);
+    border-bottom:1px solid var(--line);
+  }
+  .topnav-brand{
+    order:1;
+    display:flex; align-items:center; gap:6px; flex:0 0 auto; cursor:pointer;
+  }
+  .topnav-brand span{
+    font-family:var(--font-display); font-weight:600; font-size:14px; color:var(--ink);
+  }
+
+  .topnav-avatar{
+    order:2; margin-left:auto;
+    width:30px; height:30px; border-radius:50%; background:var(--solar);
+    display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+    font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--dusk-deep);
+  }
+
+  .topnav-links{
+    order:3; flex:1 1 100%;
+    display:flex; flex-wrap:wrap; justify-content:center; gap:4px;
+  }
+  .topnav-item{
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    min-width:34px; height:32px;
+    padding:0 10px; border-radius:100px;
+    font-size:12px; font-weight:700; color:var(--ink-soft);
+    white-space:nowrap; cursor:pointer; user-select:none;
+    transition:background .15s ease, color .15s ease;
+  }
+  .topnav-item svg{width:15px; height:15px; stroke:currentColor; flex:0 0 auto;}
+  .topnav-item.active{ background:var(--dusk); color:var(--bone); }
+  .topnav-item span.tlabel{display:none;}
+  @media (min-width:520px){
+    .topnav-item{padding:0 14px;}
+    .topnav-item span.tlabel{display:inline;}
+  }
+
+  .sim-banner{
+    display:flex; gap:9px; align-items:flex-start;
+    background:var(--sawah-bg); border:1px solid #C7DBC9;
+    padding:11px 14px; margin:14px 20px 4px 20px; border-radius:14px;
+  }
+  .sim-banner svg{width:15px;height:15px; stroke:var(--sawah); flex:0 0 auto; margin-top:1px;}
+  .sim-banner p{font-size:11px; color:#2F4F38; line-height:1.5;}
+  .sim-banner b{color:var(--sawah);}
+
+  /* ---------- Shared bits ---------- */
+  .px{padding-left:24px; padding-right:24px;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--dusk);
+    font-weight:600;
+  }
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    height:52px;
+    border-radius:100px;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    cursor:pointer;
+    width:100%;
+  }
+  .btn-primary{background:var(--dusk); color:var(--bone);}
+  .btn-primary:active{background:var(--dusk-deep);}
+  .btn-outline{background:transparent; color:var(--dusk); border:1.5px solid var(--dusk);}
+  .btn-ghost{background:transparent; color:var(--ink-soft); font-weight:600;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:18px;
+  }
+
+  h1,h2,h3{font-family:var(--font-display); font-weight:600; line-height:1.15;}
+
+  /* ================= SCREEN 1 — ONBOARDING ================= */
+  #screen-onboarding{
+    background:
+      radial-gradient(120% 90% at 50% -10%, #33456F 0%, var(--dusk) 45%, var(--dusk-deep) 100%);
+    color:var(--bone);
+    justify-content:space-between;
+    padding-top:64px;
+  }
+  .brandmark{
+    display:flex; align-items:center; gap:8px; padding:0 24px;
+  }
+  .brandmark svg{width:26px;height:26px;}
+  .brandmark span{
+    font-family:var(--font-display); font-weight:600; font-size:18px; color:var(--bone);
+  }
+  .onboard-hero{ padding:36px 24px 0 24px; }
+  .onboard-hero .eyebrow{color:var(--solar);}
+  .onboard-hero h1{
+    font-size:34px; margin-top:14px; color:var(--bone); letter-spacing:-0.01em;
+  }
+  .onboard-hero h1 em{ font-style:italic; color:var(--solar); }
+  .onboard-hero p{
+    margin-top:16px; font-size:14.5px; line-height:1.6; color:#C7CEE0; max-width:290px;
+  }
+  .horizon-illustration{
+    position:relative; height:190px; margin-top:22px;
+  }
+  .horizon-illustration svg{position:absolute; bottom:0; left:0; width:100%;}
+  .onboard-bottom{
+    padding:0 24px 40px 24px;
+  }
+  .onboard-stats{
+    display:flex; gap:10px; margin-bottom:20px;
+  }
+  .stat-chip{
+    flex:1; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
+    border-radius:14px; padding:10px 12px;
+  }
+  .stat-chip .num{font-family:var(--font-mono); font-size:15px; color:var(--solar); font-weight:600;}
+  .stat-chip .lbl{font-size:10.5px; color:#AEB6CC; margin-top:2px; line-height:1.3;}
+
+  /* ================= SCREEN 2 — CONSENT / APPLICATION ================= */
+  #screen-consent{ background:var(--bone); }
+  .topbar{
+    display:flex; align-items:center; gap:12px; padding:18px 24px 6px 24px;
+  }
+  .backbtn{
+    width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center; cursor:pointer;
+  }
+  .topbar h3{font-size:16px;}
+  .steps-hint{padding:2px 24px 14px 24px; font-size:12.5px; color:var(--ink-soft);}
+
+  .consent-item{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:16px; border:1px solid var(--line); border-radius:16px; background:var(--card);
+    margin-bottom:10px;
+  }
+  .consent-icon{
+    width:38px;height:38px;border-radius:10px;background:var(--sawah-bg);
+    display:flex;align-items:center;justify-content:center; flex:0 0 auto;
+  }
+  .consent-icon svg{width:19px;height:19px; stroke:var(--sawah);}
+  .consent-text{flex:1;}
+  .consent-text .title{font-weight:700; font-size:13.5px;}
+  .consent-text .desc{font-size:12px; color:var(--ink-soft); margin-top:3px; line-height:1.45;}
+  .switch{
+    width:42px; height:24px; border-radius:100px; background:var(--sawah); position:relative; flex:0 0 auto;
+    cursor:pointer; margin-top:2px;
+  }
+  .switch::after{
+    content:''; position:absolute; top:3px; left:21px; width:18px; height:18px; border-radius:50%;
+    background:var(--white); transition:left .15s ease;
+  }
+  .switch.off{background:var(--line);}
+  .switch.off::after{left:3px;}
+
+  .pdp-note{
+    display:flex; gap:8px; align-items:flex-start; margin:14px 0 18px 0;
+    font-size:11px; color:var(--ink-soft); line-height:1.5;
+  }
+  .pdp-note svg{width:14px;height:14px; stroke:var(--ink-soft); flex:0 0 auto; margin-top:2px;}
+
+  .field{margin-bottom:14px;}
+  .field label{font-size:12px; font-weight:700; display:block; margin-bottom:6px;}
+  .field input{
+    width:100%; height:46px; border-radius:12px; border:1px solid var(--line);
+    background:var(--card); padding:0 14px; font-family:var(--font-body); font-size:14px; color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--dusk); outline-offset:1px;}
+
+  .slider-row{margin-bottom:14px;}
+  .slider-row:last-child{margin-bottom:2px;}
+  .slider-label{display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;}
+  .slider-label span:first-child{color:var(--ink-soft); font-weight:600;}
+  .slider-label .slider-val{font-family:var(--font-mono); font-weight:700; color:var(--dusk);}
+  input[type="range"]{
+    -webkit-appearance:none; width:100%; height:6px; border-radius:100px;
+    background:var(--bone-2); accent-color:var(--dusk); cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--dusk); border:3px solid var(--bone); box-shadow:0 1px 4px rgba(0,0,0,0.25);
+  }
+
+  .consent-bottom{ padding:6px 24px 28px 24px; margin-top:auto; }
+
+  /* ================= SCREEN 3 — LOADING ================= */
+  #screen-loading{
+    background:var(--bone); align-items:center; justify-content:center; text-align:center; gap:22px;
+  }
+  .spinner-wrap{position:relative; width:96px; height:96px;}
+  .spinner-ring{
+    width:96px;height:96px;border-radius:50%;
+    border:5px solid var(--bone-2); border-top-color:var(--solar);
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #screen-loading p{font-size:13.5px; color:var(--ink-soft); max-width:220px;}
+  #screen-loading h3{font-size:17px;}
+
+  /* ================= SCREEN 4 — SCORE RESULT ================= */
+  #screen-score{ background:var(--bone); }
+  .score-hero{
+    background:linear-gradient(180deg, var(--dusk-deep) 0%, var(--dusk) 100%);
+    padding:20px 24px 26px 24px;
+    border-radius:0 0 32px 32px;
+    color:var(--bone);
+  }
+  .score-hero .toprow{display:flex; justify-content:space-between; align-items:center;}
+  .score-hero .toprow .hi{font-size:13px; color:#C7CEE0;}
+  .score-hero .toprow .hi b{color:var(--bone);}
+  .idchip{
+    font-family:var(--font-mono); font-size:10.5px; background:rgba(255,255,255,0.08);
+    padding:4px 9px; border-radius:8px; color:#C7CEE0; border:1px solid rgba(255,255,255,0.14);
+  }
+
+  /* Signature: Sunrise Score Arc */
+  .arc-wrap{ position:relative; margin:10px auto 0 auto; width:260px; height:160px;}
+  .arc-wrap svg{width:100%; height:100%;}
+  .arc-readout{
+    position:absolute; left:0; right:0; bottom:14px; text-align:center;
+  }
+  .arc-readout .score{
+    font-family:var(--font-display); font-size:46px; font-weight:600; color:var(--bone); line-height:1;
+  }
+  .arc-readout .range{
+    font-family:var(--font-mono); font-size:10.5px; color:#AEB6CC; margin-top:2px;
+  }
+  .tier-badge{
+    display:inline-flex; align-items:center; gap:6px; margin:12px auto 0 auto;
+    padding:7px 14px; border-radius:100px; font-size:12.5px; font-weight:700;
+    background:rgba(76,122,87,0.22); color:#B7E0C0; border:1px solid rgba(183,224,192,0.35);
+  }
+  .tier-badge-wrap{display:flex; justify-content:center;}
+  .tier-badge .dotpulse{width:7px;height:7px;border-radius:50%; background:#7FD996;}
+
+  .score-body{padding:22px 24px 8px 24px;}
+  .section-title{font-size:14px; font-weight:800; margin-bottom:4px;}
+  .section-sub{font-size:12px; color:var(--ink-soft); margin-bottom:14px;}
+
+  .factor-row{margin-bottom:13px;}
+  .factor-row .flabel{
+    display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;
+  }
+  .factor-row .flabel .fname{font-weight:600;}
+  .factor-row .flabel .fweight{font-family:var(--font-mono); color:var(--ink-soft);}
+  .fbar-track{height:7px; background:var(--bone-2); border-radius:100px; overflow:hidden;}
+  .fbar-fill{height:100%; border-radius:100px; background:var(--sawah);}
+  .fbar-fill.neg{background:var(--clay);}
+
+  .explain-note{
+    display:flex; gap:10px; align-items:flex-start; background:var(--card);
+    border:1px solid var(--line); border-radius:16px; padding:14px; margin:16px 0;
+  }
+  .explain-note svg{width:17px;height:17px; stroke:var(--dusk); flex:0 0 auto; margin-top:1px;}
+  .explain-note p{font-size:12px; color:var(--ink-soft); line-height:1.55;}
+  .explain-note a{color:var(--dusk); font-weight:700; text-decoration:underline;}
+
+  .score-cta{padding:6px 24px 26px 24px;}
+
+  /* ================= SCREEN 5 — INSTALLER MATCHING ================= */
+  #screen-installer .topbar{padding-bottom:0;}
+  .installer-list{padding:14px 24px 100px 24px; display:flex; flex-direction:column; gap:12px;}
+  .installer-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px;
+  }
+  .installer-top{display:flex; gap:12px; align-items:center;}
+  .installer-avatar{
+    width:44px;height:44px;border-radius:12px; background:var(--dusk); color:var(--bone);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+    font-weight:600; font-size:16px; flex:0 0 auto;
+  }
+  .installer-name-row{flex:1;}
+  .installer-name{font-weight:700; font-size:14px;}
+  .installer-meta{font-size:11.5px; color:var(--ink-soft); margin-top:2px; display:flex; gap:8px; align-items:center;}
+  .installer-badge{
+    font-size:10px; font-weight:700; background:var(--sawah-bg); color:var(--sawah);
+    padding:3px 8px; border-radius:100px;
+  }
+  .installer-stats{
+    display:flex; gap:8px; margin-top:12px;
+  }
+  .istat{
+    flex:1; background:var(--bone); border-radius:10px; padding:8px 10px; text-align:center;
+  }
+  .istat .v{font-family:var(--font-mono); font-weight:600; font-size:13px;}
+  .istat .l{font-size:9.5px; color:var(--ink-soft); margin-top:2px;}
+  .installer-card .btn{height:42px; font-size:13.5px; margin-top:12px;}
+
+  /* ================= SCREEN 6 — HOME / DASHBOARD ================= */
+  #screen-home{ background:var(--bone); }
+  .home-header{ padding:20px 24px 4px 24px; display:flex; justify-content:space-between; align-items:flex-start;}
+  .home-header .greet{font-size:13px; color:var(--ink-soft);}
+  .home-header .name{font-family:var(--font-display); font-size:20px; margin-top:2px;}
+  .avatar-circle{
+    width:40px;height:40px;border-radius:50%; background:var(--solar); display:flex; align-items:center;
+    justify-content:center; font-weight:700; font-family:var(--font-display); color:var(--dusk-deep);
+  }
+
+  .home-scroll{padding:16px 24px 110px 24px; display:flex; flex-direction:column; gap:14px;}
+
+  .gen-card{
+    background:linear-gradient(135deg, #F4C878 0%, var(--solar) 55%, var(--solar-deep) 100%);
+    border-radius:20px; padding:18px; color:#3A2606;
+  }
+  .gen-card .toprow{display:flex; justify-content:space-between; align-items:flex-start;}
+  .gen-card .lbl{font-size:12px; font-weight:700; opacity:0.85;}
+  .gen-card .big{font-family:var(--font-display); font-size:32px; font-weight:600; margin-top:4px;}
+  .gen-card .sub{font-size:11.5px; margin-top:2px; opacity:0.8;}
+  .sun-badge{width:34px;height:34px;}
+
+  .twocol{display:flex; gap:12px;}
+  .mini-card{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px;}
+  .mini-card .lbl{font-size:11px; color:var(--ink-soft); font-weight:600;}
+  .mini-card .val{font-family:var(--font-mono); font-size:17px; font-weight:600; margin-top:4px;}
+  .mini-card .val.green{color:var(--sawah);}
+
+  .repay-card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px;}
+  .repay-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .repay-top .t{font-weight:700; font-size:13.5px;}
+  .repay-top .amt{font-family:var(--font-mono); font-size:13px; color:var(--dusk); font-weight:600;}
+  .progress-track{height:8px; background:var(--bone-2); border-radius:100px; overflow:hidden;}
+  .progress-fill{height:100%; width:34%; background:var(--dusk); border-radius:100px;}
+  .repay-sub{font-size:11px; color:var(--ink-soft); margin-top:8px;}
+
+  .history-list{padding:14px 24px 110px 24px; display:flex; flex-direction:column; gap:10px;}
+  .hist-row{
+    display:flex; justify-content:space-between; align-items:center; background:var(--card);
+    border:1px solid var(--line); border-radius:14px; padding:13px 15px;
+  }
+  .hist-left .t{font-size:13px; font-weight:700;}
+  .hist-left .d{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+  .hist-right{font-family:var(--font-mono); font-size:13px; font-weight:600;}
+  .hist-right.paid{color:var(--sawah);}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ SCREEN 1: ONBOARDING ============ -->
+  <div class="screen active" id="screen-onboarding">
+    <div>
+      <div class="brandmark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2" stroke="#E8A33D" stroke-width="1.8"/></svg>
+        <span>EnergiBersama</span>
+      </div>
+      <div class="onboard-hero">
+        <div class="eyebrow">Oleh Pertamina NRE</div>
+        <h1>Panel surya untuk rumah Anda, <em>tanpa</em> riwayat bank.</h1>
+        <p>Kami menilai kelayakan Anda dari kebiasaan bayar listrik, transaksi MyPertamina, dan aktivitas dompet digital — bukan dari BI Checking.</p>
+      </div>
+      <div class="horizon-illustration">
+        <svg viewBox="0 0 390 190" preserveAspectRatio="xMidYMax meet">
+          <circle cx="195" cy="150" r="58" fill="#E8A33D" opacity="0.9"/>
+          <circle cx="195" cy="150" r="80" fill="none" stroke="#E8A33D" stroke-opacity="0.25" stroke-width="1.5"/>
+          <circle cx="195" cy="150" r="100" fill="none" stroke="#E8A33D" stroke-opacity="0.14" stroke-width="1.5"/>
+          <path d="M0,178 L38,178 L48,160 L64,160 L72,150 L96,150 L104,168 L150,168 L158,150 L176,150 L184,140 L204,140 L212,150 L236,150 L246,166 L292,166 L300,150 L322,150 L332,168 L390,168 L390,190 L0,190 Z" fill="#1E2A4D"/>
+          <rect x="44" y="153" width="26" height="7" rx="1.5" fill="#33456F"/>
+          <rect x="176" y="133" width="30" height="7" rx="1.5" fill="#33456F"/>
+          <rect x="298" y="143" width="26" height="7" rx="1.5" fill="#33456F"/>
+        </svg>
+      </div>
+    </div>
+    <div class="onboard-bottom">
+      <div class="onboard-stats">
+        <div class="stat-chip"><div class="num">723 MWp</div><div class="lbl">Portofolio surya Pertamina NRE</div></div>
+        <div class="stat-chip"><div class="num">0%</div><div class="lbl">Program surya rumah tangga saat ini</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="go('screen-consent')">Ajukan Sekarang
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#EFEAE0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2: CONSENT / APPLICATION ============ -->
+  <div class="screen" id="screen-consent">
+    <div class="topnav-slot"></div>
+    <div class="topbar" style="padding-top:16px;">
+      <h3>Ajukan Pembiayaan</h3>
+    </div>
+    <div class="sim-banner">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke-width="1.7"/><path d="M12 8v5M12 16h.01" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <p><b>Mode Simulasi.</b> Di aplikasi nyata, data di bawah ini diambil otomatis dari akun Anda setelah persetujuan — geser di sini hanya untuk mensimulasikan profil pemohon yang berbeda.</p>
+    </div>
+    <div class="steps-hint">Skor akan dihitung ulang secara langsung dari nilai di bawah</div>
+
+    <div class="px" style="flex:1;">
+
+      <div class="consent-item" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+          <div class="consent-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          </div>
+          <div class="consent-text">
+            <div class="title">Riwayat Tagihan Listrik PLN</div>
+            <div class="desc">Konsistensi pembayaran 12 bulan terakhir</div>
+          </div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Konsistensi pembayaran</span><span class="slider-val" id="val_upc">78%</span></div>
+          <input type="range" min="5" max="100" value="78" id="in_upc" oninput="onSlide('upc')">
+        </div>
+      </div>
+
+      <div class="consent-item" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+          <div class="consent-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h12" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </div>
+          <div class="consent-text">
+            <div class="title">Transaksi MyPertamina</div>
+            <div class="desc">Frekuensi & keteraturan pembelian BBM</div>
+          </div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Frekuensi transaksi / bln</span><span class="slider-val" id="val_mtf">7.0</span></div>
+          <input type="range" min="0" max="25" step="0.5" value="7" id="in_mtf" oninput="onSlide('mtf')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Keteraturan transaksi</span><span class="slider-val" id="val_mtr">0.65</span></div>
+          <input type="range" min="0" max="1" step="0.01" value="0.65" id="in_mtr" oninput="onSlide('mtr')">
+        </div>
+      </div>
+
+      <div class="consent-item" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+          <div class="consent-icon">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke-width="1.8"/><path d="M4 10h16" stroke-width="1.8"/></svg>
+          </div>
+          <div class="consent-text">
+            <div class="title">Aktivitas Dompet Digital</div>
+            <div class="desc">Keteraturan top-up & saldo</div>
+          </div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Frekuensi top-up / bln</span><span class="slider-val" id="val_etf">8.0</span></div>
+          <input type="range" min="0" max="30" step="0.5" value="8" id="in_etf" oninput="onSlide('etf')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Volatilitas saldo</span><span class="slider-val" id="val_ebv">0.30</span></div>
+          <input type="range" min="0" max="1" step="0.01" value="0.30" id="in_ebv" oninput="onSlide('ebv')">
+        </div>
+      </div>
+
+      <div class="pdp-note">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" stroke-width="1.6"/></svg>
+        <span>Data Anda diproses sesuai UU PDP No. 27/2022. Anda dapat menarik persetujuan kapan saja di menu Profil.</span>
+      </div>
+
+      <div class="field">
+        <label>Nama Lengkap</label>
+        <input type="text" id="in_name" value="Siti Rahayu" />
+      </div>
+
+      <!-- Hidden fields carrying secondary model features at reasonable fixed defaults -->
+      <input type="hidden" id="in_ptf" value="2.5">
+      <input type="hidden" id="in_addr" value="6.5">
+      <input type="hidden" id="in_hh" value="4">
+      <input type="hidden" id="in_spend" value="1800">
+      <input type="hidden" id="in_age" value="38">
+      <input type="hidden" id="in_etamt" value="350">
+    </div>
+
+    <div class="consent-bottom">
+      <button class="btn btn-primary" onclick="startScoring()">Hitung &amp; Kirim Pengajuan</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3: LOADING ============ -->
+  <div class="screen" id="screen-loading">
+    <div class="spinner-wrap"><div class="spinner-ring"></div></div>
+    <h3>Menghitung Skor Anda</h3>
+    <p>Menganalisis pola pembayaran & transaksi — proses ini aman dan hanya butuh beberapa detik.</p>
+  </div>
+
+  <!-- ============ SCREEN 4: SCORE RESULT ============ -->
+  <div class="screen" id="screen-score">
+    <div class="topnav-slot"></div>
+    <div class="score-hero">
+      <div class="toprow">
+        <div class="hi">Halo, <b id="out_name">Siti</b> 👋</div>
+        <div class="idchip" id="out_id">HH-01725</div>
+      </div>
+
+      <div class="arc-wrap">
+        <svg viewBox="0 0 260 150">
+          <path d="M20,140 A110,110 0 0,1 240,140" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="14" stroke-linecap="round"/>
+          <path id="arcFill" d="M20,140 A110,110 0 0,1 240,140" fill="none" stroke="#E8A33D" stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="345" stroke-dashoffset="81"/>
+          <circle id="arcMarker" cx="211" cy="66" r="9" fill="#F4C878"/>
+        </svg>
+        <div class="arc-readout">
+          <div class="score" id="out_score">721</div>
+          <div class="range">SKOR ENERGIBERSAMA · 300&ndash;850</div>
+        </div>
+      </div>
+
+      <div class="tier-badge-wrap">
+        <div class="tier-badge" id="out_tier"><span class="dotpulse"></span> Disetujui — Conditional Approval</div>
+      </div>
+    </div>
+
+    <div class="score-body">
+      <div class="section-title">Faktor Pendukung Skor</div>
+      <div class="section-sub">Kontribusi tiap sumber data terhadap skor akhir Anda (dihitung langsung dari model)</div>
+
+      <div id="factor-list">
+        <div class="factor-row">
+          <div class="flabel"><span class="fname">Konsistensi bayar listrik</span><span class="fweight">+0.75</span></div>
+          <div class="fbar-track"><div class="fbar-fill" style="width:92%"></div></div>
+        </div>
+      </div>
+
+      <div class="explain-note">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke-width="1.7"/><path d="M12 8v5M12 16h.01" stroke-width="1.9" stroke-linecap="round"/></svg>
+        <p>Skor ini dihasilkan dari data yang Anda setujui, bukan riwayat BI Checking. <a href="#" onclick="go('screen-consent');return false;">Ubah data & hitung ulang →</a></p>
+      </div>
+    </div>
+
+    <div class="score-cta">
+      <button class="btn btn-primary" onclick="go('screen-installer')">Lihat Mitra Instalatur</button>
+    </div>
+
+  </div>
+
+  <!-- ============ SCREEN 5: INSTALLER MATCHING ============ -->
+  <div class="screen" id="screen-installer">
+    <div class="topnav-slot"></div>
+    <div class="topbar" style="padding-top:16px;">
+      <h3>Mitra Instalatur Tersertifikasi</h3>
+    </div>
+    <div class="installer-list">
+
+      <div class="installer-card">
+        <div class="installer-top">
+          <div class="installer-avatar">SM</div>
+          <div class="installer-name-row">
+            <div class="installer-name">Surya Mandiri EPC</div>
+            <div class="installer-meta">4.8 ★ &nbsp;·&nbsp; 2.1 km &nbsp;·&nbsp; <span class="installer-badge">Tersertifikasi</span></div>
+          </div>
+        </div>
+        <div class="installer-stats">
+          <div class="istat"><div class="v">3&ndash;5 hari</div><div class="l">Estimasi kerja</div></div>
+          <div class="istat"><div class="v">Rp 4,2Jt</div><div class="l">Estimasi cicilan/bln</div></div>
+          <div class="istat"><div class="v">127</div><div class="l">Rumah terpasang</div></div>
+        </div>
+        <button class="btn btn-primary">Pilih Mitra Ini</button>
+      </div>
+
+      <div class="installer-card">
+        <div class="installer-top">
+          <div class="installer-avatar">CH</div>
+          <div class="installer-name-row">
+            <div class="installer-name">Cahaya Hijau Teknik</div>
+            <div class="installer-meta">4.6 ★ &nbsp;·&nbsp; 3.4 km &nbsp;·&nbsp; <span class="installer-badge">Tersertifikasi</span></div>
+          </div>
+        </div>
+        <div class="installer-stats">
+          <div class="istat"><div class="v">4&ndash;6 hari</div><div class="l">Estimasi kerja</div></div>
+          <div class="istat"><div class="v">Rp 3,9Jt</div><div class="l">Estimasi cicilan/bln</div></div>
+          <div class="istat"><div class="v">84</div><div class="l">Rumah terpasang</div></div>
+        </div>
+        <button class="btn btn-outline">Pilih Mitra Ini</button>
+      </div>
+
+      <div class="installer-card">
+        <div class="installer-top">
+          <div class="installer-avatar">RE</div>
+          <div class="installer-name-row">
+            <div class="installer-name">Rekan Energi Nusantara</div>
+            <div class="installer-meta">4.9 ★ &nbsp;·&nbsp; 5.0 km &nbsp;·&nbsp; <span class="installer-badge">Tersertifikasi</span></div>
+          </div>
+        </div>
+        <div class="installer-stats">
+          <div class="istat"><div class="v">2&ndash;4 hari</div><div class="l">Estimasi kerja</div></div>
+          <div class="istat"><div class="v">Rp 4,5Jt</div><div class="l">Estimasi cicilan/bln</div></div>
+          <div class="istat"><div class="v">156</div><div class="l">Rumah terpasang</div></div>
+        </div>
+        <button class="btn btn-outline">Pilih Mitra Ini</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 6: HOME / DASHBOARD ============ -->
+  <div class="screen" id="screen-home">
+    <div class="topnav-slot"></div>
+    <div class="home-header">
+      <div>
+        <div class="greet">Selamat pagi ☀️</div>
+        <div class="name" id="home_name">Siti Rahayu</div>
+      </div>
+      <div class="avatar-circle" id="home_avatar">S</div>
+    </div>
+    <div class="home-scroll">
+      <div class="gen-card">
+        <div class="toprow">
+          <div>
+            <div class="lbl">Produksi Listrik Hari Ini</div>
+            <div class="big">4.8 kWh</div>
+            <div class="sub">Setara Rp 8.100 penghematan hari ini</div>
+          </div>
+          <svg class="sun-badge" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" fill="#3A2606"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="#3A2606" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+
+      <div class="twocol">
+        <div class="mini-card">
+          <div class="lbl">Total Hemat Bulan Ini</div>
+          <div class="val green">Rp 241.500</div>
+        </div>
+        <div class="mini-card">
+          <div class="lbl">Skor Terkini</div>
+          <div class="val" id="home_score">721</div>
+        </div>
+      </div>
+
+      <div class="repay-card">
+        <div class="repay-top">
+          <div class="t">Cicilan Panel Surya</div>
+          <div class="amt">Rp 4.200.000</div>
+        </div>
+        <div class="progress-track"><div class="progress-fill"></div></div>
+        <div class="repay-sub">12 dari 36 cicilan selesai · Jatuh tempo berikutnya 5 Agustus 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 7: HISTORY ============ -->
+  <div class="screen" id="screen-history">
+    <div class="topnav-slot"></div>
+    <div class="topbar"><h3>Riwayat Pembayaran</h3></div>
+    <div class="history-list">
+      <div class="hist-row">
+        <div class="hist-left"><div class="t">Cicilan Juli 2026</div><div class="d">Dibayar 3 Jul 2026</div></div>
+        <div class="hist-right paid">Rp 4.200.000</div>
+      </div>
+      <div class="hist-row">
+        <div class="hist-left"><div class="t">Cicilan Juni 2026</div><div class="d">Dibayar 4 Jun 2026</div></div>
+        <div class="hist-right paid">Rp 4.200.000</div>
+      </div>
+      <div class="hist-row">
+        <div class="hist-left"><div class="t">Cicilan Mei 2026</div><div class="d">Dibayar 2 Mei 2026</div></div>
+        <div class="hist-right paid">Rp 4.200.000</div>
+      </div>
+      <div class="hist-row">
+        <div class="hist-left"><div class="t">Skor diperbarui</div><div class="d">28 April 2026</div></div>
+        <div class="hist-right">721</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// SolarKredit scoring model — EXACT parameters exported from the
+// trained Python logistic regression (see train_model.py / 
+// model_export.json). Same features, same scaler, same coefficients,
+// same intercept used to produce the paper's reported AUC-ROC = 0.737.
+// ============================================================
+const MODEL = {
+  features: ["utility_payment_consistency","mypertamina_txn_frequency","mypertamina_txn_regularity",
+             "ewallet_topup_frequency","ewallet_topup_avg_amount_idr_k","ewallet_balance_volatility",
+             "plts_token_purchase_freq","address_stability_years","household_size",
+             "monthly_spend_proxy_idr_k","applicant_age"],
+  scaler_mean:  [70.5706, 6.7288, 0.561318, 7.1794, 369.316, 0.3971, 2.773333, 6.5682, 4.055333, 1277.855333, 37.918],
+  scaler_scale: [17.212183, 3.847277, 0.205581, 3.644877, 230.550313, 0.200848, 1.745557, 4.593675, 1.957278, 629.795056, 9.653632],
+  coefficients: [0.747585, 0.121712, 0.286880, 0.351008, -0.098473, -0.181017, 0.223676, 0.224035, -0.101487, 0.244045, -0.075260],
+  intercept: -0.019485
+};
+
+const FEATURE_LABELS_ID = {
+  utility_payment_consistency: "Konsistensi bayar listrik",
+  mypertamina_txn_frequency: "Frekuensi transaksi MyPertamina",
+  mypertamina_txn_regularity: "Keteraturan transaksi MyPertamina",
+  ewallet_topup_frequency: "Keteraturan top-up e-wallet",
+  ewallet_topup_avg_amount_idr_k: "Rata-rata nominal top-up e-wallet",
+  ewallet_balance_volatility: "Volatilitas saldo dompet digital",
+  plts_token_purchase_freq: "Frekuensi beli token listrik prabayar",
+  address_stability_years: "Lama tinggal di alamat saat ini",
+  household_size: "Jumlah anggota rumah tangga",
+  monthly_spend_proxy_idr_k: "Estimasi pengeluaran digital bulanan",
+  applicant_age: "Usia pemohon",
+};
+
+function readInputs(){
+  return {
+    utility_payment_consistency: parseFloat(document.getElementById('in_upc').value),
+    mypertamina_txn_frequency: parseFloat(document.getElementById('in_mtf').value),
+    mypertamina_txn_regularity: parseFloat(document.getElementById('in_mtr').value),
+    ewallet_topup_frequency: parseFloat(document.getElementById('in_etf').value),
+    ewallet_topup_avg_amount_idr_k: parseFloat(document.getElementById('in_etamt').value),
+    ewallet_balance_volatility: parseFloat(document.getElementById('in_ebv').value),
+    plts_token_purchase_freq: parseFloat(document.getElementById('in_ptf').value),
+    address_stability_years: parseFloat(document.getElementById('in_addr').value),
+    household_size: parseFloat(document.getElementById('in_hh').value),
+    monthly_spend_proxy_idr_k: parseFloat(document.getElementById('in_spend').value),
+    applicant_age: parseFloat(document.getElementById('in_age').value),
+  };
+}
+
+function computeScore(values){
+  let logit = MODEL.intercept;
+  const contributions = [];
+  MODEL.features.forEach((f, i) => {
+    const z = (values[f] - MODEL.scaler_mean[i]) / MODEL.scaler_scale[i];
+    const contrib = MODEL.coefficients[i] * z;
+    logit += contrib;
+    contributions.push({feature: f, contribution: contrib});
+  });
+  const prob = 1 / (1 + Math.exp(-logit));
+  const score = Math.round(300 + prob * (850 - 300));
+  let tier, tierClass;
+  if(score >= 700){ tier = "Disetujui — Approved"; }
+  else if(score >= 600){ tier = "Disetujui — Conditional Approval"; }
+  else if(score >= 500){ tier = "Perlu Tinjauan Manual"; }
+  else { tier = "Belum Memenuhi Syarat"; }
+  contributions.sort((a,b) => Math.abs(b.contribution) - Math.abs(a.contribution));
+  return {prob, score, tier, contributions};
+}
+
+function renderScore(result){
+  document.getElementById('out_score').textContent = result.score;
+  document.getElementById('home_score').textContent = result.score;
+  document.getElementById('out_tier').innerHTML = `<span class="dotpulse"></span> ${result.tier}`;
+  const name = document.getElementById('in_name').value.trim() || "Anda";
+  document.getElementById('out_name').textContent = name.split(' ')[0];
+
+  // Arc gauge: fraction along 300-850 range
+  const frac = Math.min(1, Math.max(0, (result.score - 300) / (850 - 300)));
+  const totalLen = 345; // path length of the semicircle
+  const offset = totalLen * (1 - frac);
+  document.getElementById('arcFill').setAttribute('stroke-dashoffset', offset.toFixed(1));
+  // Marker position along semicircle: center (130,140) r=110, angle sweeps 180deg(left) -> 0deg(right)
+  const angleDeg = 180 - frac * 180;
+  const rad = angleDeg * Math.PI / 180;
+  const mx = 130 + 110 * Math.cos(rad);
+  const my = 140 - 110 * Math.sin(rad);
+  document.getElementById('arcMarker').setAttribute('cx', mx.toFixed(1));
+  document.getElementById('arcMarker').setAttribute('cy', my.toFixed(1));
+
+  // Factor bars: top 4 by absolute contribution
+  const top = result.contributions.slice(0, 4);
+  const maxAbs = Math.max(...top.map(c => Math.abs(c.contribution)), 0.05);
+  const listEl = document.getElementById('factor-list');
+  listEl.innerHTML = '';
+  top.forEach(c => {
+    const pct = Math.min(100, (Math.abs(c.contribution) / maxAbs) * 100);
+    const sign = c.contribution >= 0 ? '+' : '\u2212';
+    const barClass = c.contribution >= 0 ? 'fbar-fill' : 'fbar-fill neg';
+    const row = document.createElement('div');
+    row.className = 'factor-row';
+    row.innerHTML = `
+      <div class="flabel"><span class="fname">${FEATURE_LABELS_ID[c.feature]}</span><span class="fweight">${sign}${Math.abs(c.contribution).toFixed(2)}</span></div>
+      <div class="fbar-track"><div class="${barClass}" style="width:${pct}%"></div></div>`;
+    listEl.appendChild(row);
+  });
+}
+
+function onSlide(key){
+  const map = {
+    upc: ['in_upc','val_upc', v => Math.round(v) + '%'],
+    mtf: ['in_mtf','val_mtf', v => v.toFixed(1)],
+    mtr: ['in_mtr','val_mtr', v => v.toFixed(2)],
+    etf: ['in_etf','val_etf', v => v.toFixed(1)],
+    ebv: ['in_ebv','val_ebv', v => v.toFixed(2)],
+  };
+  const [inputId, valId, fmt] = map[key];
+  const v = parseFloat(document.getElementById(inputId).value);
+  document.getElementById(valId).textContent = fmt(v);
+}
+
+const TOPNAV_HTML = `
+  <div class="topnav-brand" onclick="go('screen-home')">
+    <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2" stroke="#E8A33D" stroke-width="1.8"/></svg>
+    <span>EnergiBersama</span>
+  </div>
+  <div class="topnav-links">
+    <div class="topnav-item" data-nav="home" onclick="go('screen-home')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tlabel">Beranda</span>
+    </div>
+    <div class="topnav-item" data-nav="apply" onclick="go('screen-consent')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke-width="1.8" stroke-linecap="round"/></svg><span class="tlabel">Ajukan</span>
+    </div>
+    <div class="topnav-item" data-nav="score" onclick="go('screen-score')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v4M5 7l2.5 2.5M19 7l-2.5 2.5M4 15a8 8 0 1116 0" stroke-width="1.8" stroke-linecap="round"/><path d="M12 15l3-4" stroke-width="1.8" stroke-linecap="round"/></svg><span class="tlabel">Skor</span>
+    </div>
+    <div class="topnav-item" data-nav="installer" onclick="go('screen-installer')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M6 21V9l6-4 6 4v12M10 21v-6h4v6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tlabel">Instalatur</span>
+    </div>
+    <div class="topnav-item" data-nav="history" onclick="go('screen-history')">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke-width="1.8"/></svg><span class="tlabel">Riwayat</span>
+    </div>
+  </div>
+  <div class="topnav-avatar sync-avatar">S</div>
+`;
+
+function mountTopNav(){
+  document.querySelectorAll('.topnav-slot').forEach(slot => {
+    slot.outerHTML = `<div class="topnav">${TOPNAV_HTML}</div>`;
+  });
+}
+
+function syncIdentity(){
+  const nameVal = (document.getElementById('in_name').value || 'Siti Rahayu').trim();
+  const first = nameVal.split(' ')[0] || 'Anda';
+  const initial = nameVal.charAt(0).toUpperCase() || 'S';
+  const outName = document.getElementById('out_name');
+  const homeName = document.getElementById('home_name');
+  if(outName) outName.textContent = first;
+  if(homeName) homeName.textContent = nameVal;
+  document.querySelectorAll('.sync-avatar, #home_avatar').forEach(el => el.textContent = initial);
+}
+
+const TOPNAV_MAP = {'screen-home':'home','screen-consent':'apply','screen-score':'score','screen-installer':'installer','screen-history':'history'};
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.topnav-item').forEach(n => n.classList.remove('active'));
+  if(TOPNAV_MAP[id]){
+    document.querySelectorAll(`.topnav-item[data-nav="${TOPNAV_MAP[id]}"]`).forEach(n => n.classList.add('active'));
+  }
+  syncIdentity();
+  window.scrollTo(0,0);
+}
+
+function startScoring(){
+  go('screen-loading');
+  setTimeout(() => {
+    const values = readInputs();
+    const result = computeScore(values);
+    renderScore(result);
+    syncIdentity();
+    go('screen-score');
+  }, 1400);
+}
+
+mountTopNav();
+syncIdentity();
+</script>
+</body>
+</html>
